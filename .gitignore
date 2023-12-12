@@ -1,0 +1,8 @@
+#Ignore auto-folders for console-app.
+bin/
+obj/
+.vscode/
+
+#Ignore files.
+*.csproj
+*.sln
