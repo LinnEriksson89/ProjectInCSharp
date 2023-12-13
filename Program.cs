@@ -3,12 +3,26 @@
  * Linn Eriksson, HT23
  */
 
-namespace project;
+using System;
 
-class Program
+namespace project
 {
-    static void Main(string[] args)
+    class Program
     {
-        Console.WriteLine("Hello, World!");
+        static void Main(string[] args)
+        {
+            //Variable and object created.
+            Game game = new Game();
+            bool showMenu = true;
+
+            while(showMenu)
+            {
+                showMenu = game.Menu();
+            }
+
+            //End of program.
+            Console.WriteLine("Tryck på valfri tangent för att avsluta programmet.");
+            Console.ReadKey();
+        }
     }
 }
