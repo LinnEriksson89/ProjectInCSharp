@@ -6,3 +6,4 @@ obj/
 #Ignore files.
 *.csproj
 *.sln
+*.txt
