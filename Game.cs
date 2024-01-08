@@ -4,6 +4,9 @@
  */
  
 using System;
+using System.Drawing;
+using System.Linq;
+using System.Text;
 using System.Text.Json;
 
 namespace project
@@ -70,11 +73,11 @@ namespace project
         private void PlayGame()
         {
             //Variables.
-            string input;
-            int tempInt, counter = 0, loopCounter = 0;
-            bool stringContainsInt;
-            char charWord;
+            string input, tempString;
+            int tempInt, counter = 0, colorCounter = 0, loopCounter = 0, colorInt = 0;
+            bool stringContainsInt, writeChar = false;
             char[] inputArray, wordArray;
+            char charWord;
 
             //Error handling with try-catch.
             try
@@ -93,6 +96,9 @@ namespace project
                 
                     Console.WriteLine(word);
 
+                //Transformation to be able to compare word later.
+                word = word.ToLowerInvariant();
+
             }
             catch
             {
@@ -106,9 +112,11 @@ namespace project
             while(counter <= 5)
             {
                 //Get input, count the number of letters in it, check if it contains digits.
-                input = Console.ReadLine();
+                input = Console.ReadLine().ToLowerInvariant().Trim();
                 tempInt = input.Length;
                 stringContainsInt = input.Any(char.IsDigit);
+                inputArray = input.ToCharArray();
+                wordArray = word.ToCharArray();
 
                 //If numbers are in the word it's not a word and the guess doesn't count.
                 if (stringContainsInt)
@@ -135,59 +143,46 @@ namespace project
                     }
                     else
                     {
-                        //If it's not the correct word check the letters against the word.
-                        inputArray = input.ToCharArray();
-                        wordArray = word.ToCharArray();
+                        //Compare a lower case version of the word to a lower case version of the input.
+                        //Collect the matches and remove those chars, collect the semimatches and remove those chars.
+                        var match = input.Select((c, i) => char.ToLowerInvariant(c) == char.ToLowerInvariant(word[i])).ToArray(); 
+                        var remaningChars = new string(word.Select((c, i) => match[i] ? '\0' : c).ToArray());
+                        var semiMatch = input.Select((c, i) => !match[i] && remaningChars.Contains(c, StringComparison.InvariantCulture)).ToArray();
+                        remaningChars = new string(word.Select((c, i) => semiMatch[i] ? '\0' : c).ToArray());
+                        
+                        StringBuilder result = new();
 
-                        //Start by setting the cursor to overwrite the input.
+                        //Set cursor position to write over the input.
                         Console.SetCursorPosition(0, Console.CursorTop -1);
-                        Console.ForegroundColor = ConsoleColor.White;
 
-                        //Run through each char in the inputword.
-                        foreach (char i in inputArray)
+                        //Run through the arrays of letters and write them with the correct background.
+                        for (int i=0; i < 5; i++)
                         {
-                            loopCounter = 0;
-
-                            while(loopCounter < 5)
+                            if(match[i])
                             {
-                                //Compare to each char in the secret word.
-                                for( int j = 0; j < 5; j++ )
-                                {                                    
-                                    //Use the char from the word-array for easier if-statements.
-                                    charWord = wordArray[j];
-
-                                    if(charWord == i && loopCounter == j)
-                                    {
-                                        //If the letter is correct and in the correct place = green background.
-                                        Console.BackgroundColor = ConsoleColor.DarkGreen;
-                                        loopCounter = 7;
-                                        j = 5;
-
-                                    } else if (charWord == i)
-                                    {
-                                        //If the letter is in the word but in the wrong place = blue background.
-                                        Console.BackgroundColor = ConsoleColor.DarkBlue;
-                                        loopCounter = 7;
-                                        j = 5;
-                                    } else
-                                    {
-                                        //If the letter is not in the word = red background.
-                                        Console.BackgroundColor = ConsoleColor.DarkRed;
-                                    }
-                                }
-
-                                //Write out the letter and reset the color for next loop.
-                                Console.Write(i);
-                                Console.ResetColor();
-                                
-                                    //Increase the counter used for colors.
-                                    loopCounter++;
+                                //If the letter is in the correct position, green background.
+                                Console.BackgroundColor = ConsoleColor.DarkGreen;
+                                Console.Write(inputArray[i]);
+                            }
+                            else if (semiMatch[i])
+                            {
+                                //If the letter exists but is in the wrong position, blue background.
+                                Console.BackgroundColor = ConsoleColor.DarkBlue;
+                                Console.Write(inputArray[i]);
+                            }
+                            else
+                            {
+                                //If the letter does not exist in the word, red background.
+                                Console.BackgroundColor = ConsoleColor.DarkRed;
+                                Console.Write(inputArray[i]);
                             }
                         }
 
-                        //Make sure the new input is on a new line.
-                        Console.WriteLine("");
+                        //Make sure the new input is on a new line and the color is reset.
+                        Console.ResetColor();
+                        Console.Write("\n");
                     }
+
                 }
                 else
                 {
