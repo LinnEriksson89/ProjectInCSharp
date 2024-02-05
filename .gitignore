@@ -9,4 +9,4 @@ obj/
 *.txt
 
 #Ignore specific files.
-statistics.json
+/statistics.json
