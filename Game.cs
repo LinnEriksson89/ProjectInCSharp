@@ -14,13 +14,12 @@ namespace project
     class Game
     {
         //Variables
-        private readonly string fileName = "words.json";
+        private readonly string fileName = "words.json", statsFile = "statistics.json";
         private List<string> listOfWords;
+        private List<Statistics> statList;
         private string word;
-        public Game ()
-        {
-            //Konstruktor här
-        }
+        private int  loopCounter = 0;
+        private bool winner = false;
 
         public bool Menu()
         {
@@ -48,16 +47,19 @@ namespace project
             //Switch for the actual menu.
             switch(menuInput)
             {
+                //Play the game.
                 case 1:
                     Console.Clear();
                     PlayGame();
                     return true;
 
+                //Show statistics.
                 case 2:
                     Console.Clear();
-                    //Här ska något annat hända.
+                    ShowStatistics();
                     return true;
 
+                //Turn of the game.
                 case 3:
                     Console.Clear();
                     return false;
@@ -73,12 +75,10 @@ namespace project
         private void PlayGame()
         {
             //Variables.
-            string input, tempString;
-            int tempInt, counter = 0, colorCounter = 0, loopCounter = 0, colorInt = 0;
-            bool stringContainsInt, writeChar = false;
+            string input;
+            int tempInt, counter = 0;
+            bool stringContainsInt;
             char[] inputArray, wordArray;
-            char charWord;
-
             //Error handling with try-catch.
             try
             {
@@ -91,7 +91,11 @@ namespace project
                 Console.WriteLine("Ordet är på svenska, har fem bokstäver och är ett substantiv.");
                 Console.WriteLine("Apostrofer och liknande har städats bort för att förenkla, så istället för é räcker det med att skriva e.");
                 Console.WriteLine("När du gissar på ett ord får du svar på om någon av bokstäverna var rätt och om dom var på rätt eller fel plats.");
-                Console.WriteLine("Nu börjar vi, vilket ord vill du gissa på?");
+                Console.WriteLine("Detta indikeras med:");
+                Console.WriteLine("-Grön bakgrund för rätt bokstav på rätt plats.");
+                Console.WriteLine("-Blå bakgrund för rätt bokstav på fel plats.");
+                Console.WriteLine("-Röd bakgrund för bokstäver som inte ingår i ordet alls.");
+                Console.WriteLine("\nNu börjar vi, vilket ord vill du gissa på?");
 
                 
                     Console.WriteLine(word);
@@ -109,7 +113,7 @@ namespace project
 
             
             //While-loop that counts the number of guesses.
-            while(counter <= 5)
+            while(counter < 5)
             {
                 //Get input, count the number of letters in it, check if it contains digits.
                 input = Console.ReadLine().ToLowerInvariant().Trim();
@@ -136,10 +140,15 @@ namespace project
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(input);
                         Console.ResetColor();
+                        
+                        //Increasing counter so that it's correct in message below.
+                        counter++;
 
                         //Give information about winning the game and increse the counter to kill the loop.
-                        Console.WriteLine("\nGrattis, " + input + " var rätt ord!");
+                        Console.WriteLine("\nGrattis, " + input + " var rätt ord! Du klarade det på " + counter + " gissningar!");
+                        
                         counter = 7;
+                        winner = true;
                     }
                     else
                     {
@@ -193,6 +202,12 @@ namespace project
                 }
 
                 counter++;
+                loopCounter++;
+            }
+
+            if(counter > 4)
+            {
+                SaveStatistics();
             }
 
             //Pauses and then returns to menu.
@@ -246,6 +261,117 @@ namespace project
             //As a sort of easter egg the game will run on the word "error" if something goes wrong with the file of words.
             return "error";
         }
+
+        private void SaveStatistics()
+        {
+            //Variables
+            Statistics newStats;
+
+            if(File.Exists(statsFile))
+            {
+                //try-catch as error handling.
+                try
+                {
+                    //Open stream.
+                    using(StreamReader streamReader = new StreamReader(statsFile))
+                    {
+                        //Read list and turn it into a list of strings.
+                        string json = streamReader.ReadToEnd();
+                        statList = JsonSerializer.Deserialize<List<Statistics>>(json);
+                        
+                        //Close streamreader.
+                        streamReader.Close();
+                        
+                        //If the list exists.
+                        if(statList != null)
+                        {
+                            newStats = new Statistics(loopCounter, word, winner);
+                            statList.Add(newStats);
+
+                            try
+                            {
+                                //Overwrite the file with the new list
+                                File.WriteAllText(@statsFile, JsonSerializer.Serialize(statList));
+                                Console.WriteLine("Din statistik har sparats.");
+                            }
+                            catch
+                            {
+                                Console.WriteLine("Tyvärr, något gick fel när din statistik skulle sparas.");
+                            }
+                        }
+                    }
+
+                }
+                catch
+                {
+                    //If reading of file fails.
+                    Console.WriteLine("Tyvärr, något gick fel när statistiken skulle sparas.");
+                }
+            }
+            else
+            {
+                //If the file doesn't exist an errormessage is shown.
+                Console.WriteLine("Tyvärr, filen där statistiken ska sparas verkar saknas.");
+            }
+
+            loopCounter = 0;
+        }
+
+        private void ShowStatistics()
+        {
+            //Variables
+            int statLength;
+
+            try
+            {
+                //Open stream.
+                using(StreamReader streamReader = new StreamReader(statsFile))
+                {
+                    //Read list and turn it into a list of strings.
+                    string json = streamReader.ReadToEnd();
+                    statList = JsonSerializer.Deserialize<List<Statistics>>(json);
+                            
+                    //Close streamreader.
+                    streamReader.Close();
+
+                    if(statList != null)
+                    {
+                        statLength = statList.Count;
+
+                        if (statLength > 0)
+                        {
+                            Console.WriteLine("Följande statistik har sparats i spelet:");
+
+                            foreach (var stat in statList)
+                            {
+                                if(stat.Winner)
+                                {
+                                    Console.WriteLine(stat.Time + ": Ordet " + stat.Word + " tog " + stat.Turns + " gissningar.");
+                                }
+                                else
+                                {
+                                 Console.WriteLine(stat.Time + ": Ordet " + stat.Word + " lyckades spelaren inte gissa.");
+                                }
+                            }
+
+                            Console.WriteLine("----------------------------------------------------------------------------------\n");
+                        }
+                    }
+                    else
+                    {
+                        //If statList doesn't exist, error is shown.
+                        Console.WriteLine("Tyvärr, något gick fel med den sparade statistiken.");
+                    }
+                } 
+            }
+            catch
+            {
+                Console.WriteLine("Tyvärr, något gick fel när statistiken skulle visas!");
+            }
+
+            ReturnToMenu();
+        }
+
         private static void ReturnToMenu()
         {
             //So the program pauses before returning to menu.
