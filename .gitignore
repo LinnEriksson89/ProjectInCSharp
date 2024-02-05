@@ -3,7 +3,10 @@ bin/
 obj/
 .vscode/
 
-#Ignore files.
+#Ignore all files of specific types.
 *.csproj
 *.sln
 *.txt
+
+#Ignore specific files.
+statistics.json
