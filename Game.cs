@@ -15,9 +15,9 @@ namespace project
     {
         //Variables
         private readonly string fileName = "words.json", statsFile = "statistics.json";
-        private List<string> listOfWords;
-        private List<Statistics> statList;
-        private string word;
+        private List<string>? listOfWords;
+        private List<Statistics>? statList;
+        private string? word;
         private int  loopCounter = 0;
         private bool winner = false;
 
@@ -96,9 +96,6 @@ namespace project
                 Console.WriteLine("-Blå bakgrund för rätt bokstav på fel plats.");
                 Console.WriteLine("-Röd bakgrund för bokstäver som inte ingår i ordet alls.");
                 Console.WriteLine("\nNu börjar vi, vilket ord vill du gissa på?");
-
-                
-                    Console.WriteLine(word);
 
                 //Transformation to be able to compare word later.
                 word = word.ToLowerInvariant();
