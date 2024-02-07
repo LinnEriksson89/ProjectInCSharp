@@ -3,9 +3,6 @@
  * Linn Eriksson, HT23
  */
  
-using System;
-using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -205,6 +202,11 @@ namespace project
             if(counter > 4)
             {
                 SaveStatistics();
+
+                if(winner == false)
+                {
+                    Console.WriteLine("\nTyvärr, ordet du inte lyckades gissa var: " + word + ". Bättre lycka nästa gång!");
+                }
             }
 
             //Pauses and then returns to menu.

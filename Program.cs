@@ -3,7 +3,6 @@
  * Linn Eriksson, HT23
  */
 
-using System;
 using System.Text;
 
 namespace project
