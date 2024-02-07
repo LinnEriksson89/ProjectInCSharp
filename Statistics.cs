@@ -9,7 +9,7 @@ namespace project
 {
     class Statistics
     {
-        public Statistics (int turns, string word, bool winner)
+        public Statistics(int turns, string word, bool winner)
         {
             //Constructor of statistics.
             Word = word;
@@ -18,9 +18,9 @@ namespace project
             Time = DateTime.Now;
         }
 
-        public string Word {get; set;}    
-        public int Turns {get; set;}
-        public bool Winner {get; set;}
-        public DateTime Time {get; set;}
+        public string Word { get; set; }
+        public int Turns { get; set; }
+        public bool Winner { get; set; }
+        public DateTime Time { get; set; }
     }
 }

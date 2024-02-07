@@ -2,7 +2,7 @@
  * Project
  * Linn Eriksson, HT23
  */
- 
+
 using System.Text;
 using System.Text.Json;
 
@@ -15,7 +15,7 @@ namespace project
         private List<string>? listOfWords;
         private List<Statistics>? statList;
         private string? word;
-        private int  loopCounter = 0;
+        private int loopCounter = 0;
         private bool winner = false;
 
         public bool Menu()
@@ -30,7 +30,7 @@ namespace project
             Console.WriteLine("1. Spela en omgång.");
             Console.WriteLine("2. Se din statistik.");
             Console.WriteLine("3. Avsluta programmet.");
-        
+
             //Error handling of user-input with try-catch.
             try
             {
@@ -42,7 +42,7 @@ namespace project
             }
 
             //Switch for the actual menu.
-            switch(menuInput)
+            switch (menuInput)
             {
                 //Play the game.
                 case 1:
@@ -81,7 +81,7 @@ namespace project
             {
                 //Get the word for the game.
                 GetWord();
-                
+
                 //Information about the game.
                 Console.WriteLine("Välkommen till spelet!");
                 Console.WriteLine("\nReglerna är enkla, du ska gissa vilket som är omgångens ord.");
@@ -105,9 +105,9 @@ namespace project
                 counter = 7;
             }
 
-            
+
             //While-loop that counts the number of guesses.
-            while(counter < 5)
+            while (counter < 5)
             {
                 //Get input, count the number of letters in it, check if it contains digits.
                 input = Console.ReadLine().ToLowerInvariant().Trim();
@@ -120,27 +120,27 @@ namespace project
                 if (stringContainsInt)
                 {
                     Console.WriteLine("Du verkar ha råkat skriva in några siffror istället för bokstäver.");
-                    counter --;
+                    counter--;
                 }
-                else if(tempInt == 5)
+                else if (tempInt == 5)
                 {
                     //If the word is 5 characters long we can start the actual game.
                     //Compare the input against the word, first check if it's the correct word.
                     if (word == input)
                     {
                         //Overwrite the inputed word with the word on green background to show all letters are correct.
-                        Console.SetCursorPosition(0, Console.CursorTop -1);
+                        Console.SetCursorPosition(0, Console.CursorTop - 1);
                         Console.BackgroundColor = ConsoleColor.DarkGreen;
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.WriteLine(input);
                         Console.ResetColor();
-                        
+
                         //Increasing counter so that it's correct in message below.
                         counter++;
 
                         //Give information about winning the game and increse the counter to kill the loop.
                         Console.WriteLine("\nGrattis, " + input + " var rätt ord! Du klarade det på " + counter + " gissningar!");
-                        
+
                         counter = 7;
                         winner = true;
                     }
@@ -148,20 +148,20 @@ namespace project
                     {
                         //Compare a lower case version of the word to a lower case version of the input.
                         //Collect the matches and remove those chars, collect the semimatches and remove those chars.
-                        var match = input.Select((c, i) => char.ToLowerInvariant(c) == char.ToLowerInvariant(word[i])).ToArray(); 
+                        var match = input.Select((c, i) => char.ToLowerInvariant(c) == char.ToLowerInvariant(word[i])).ToArray();
                         var remaningChars = new string(word.Select((c, i) => match[i] ? '\0' : c).ToArray());
                         var semiMatch = input.Select((c, i) => !match[i] && remaningChars.Contains(c, StringComparison.InvariantCulture)).ToArray();
                         remaningChars = new string(word.Select((c, i) => semiMatch[i] ? '\0' : c).ToArray());
-                        
+
                         StringBuilder result = new();
 
                         //Set cursor position to write over the input.
-                        Console.SetCursorPosition(0, Console.CursorTop -1);
+                        Console.SetCursorPosition(0, Console.CursorTop - 1);
 
                         //Run through the arrays of letters and write them with the correct background.
-                        for (int i=0; i < 5; i++)
+                        for (int i = 0; i < 5; i++)
                         {
-                            if(match[i])
+                            if (match[i])
                             {
                                 //If the letter is in the correct position, green background.
                                 Console.BackgroundColor = ConsoleColor.DarkGreen;
@@ -199,11 +199,11 @@ namespace project
                 loopCounter++;
             }
 
-            if(counter > 4)
+            if (counter > 4)
             {
                 SaveStatistics();
 
-                if(winner == false)
+                if (winner == false)
                 {
                     Console.WriteLine("\nTyvärr, ordet du inte lyckades gissa var: " + word + ". Bättre lycka nästa gång!");
                 }
@@ -220,20 +220,20 @@ namespace project
             Random randomizer = new Random();
 
             //If the file that contains the words exists this part runs.
-            if(File.Exists(fileName))
+            if (File.Exists(fileName))
             {
                 //Try-catch to read the file and turn the json into a list.
                 try
                 {
-                    using(StreamReader streamReader = new StreamReader(fileName))
+                    using (StreamReader streamReader = new StreamReader(fileName))
                     {
                         string json = streamReader.ReadToEnd();
                         listOfWords = JsonSerializer.Deserialize<List<string>>(json);
                         streamReader.Close();
 
-                        
+
                         //If the list exists.
-                        if(listOfWords != null)
+                        if (listOfWords != null)
                         {
                             //Get the length of the list, use it to randomize a number and use that to fetch a word from the list.
                             tempInt = listOfWords.Count;
@@ -266,23 +266,23 @@ namespace project
             //Variables
             Statistics newStats;
 
-            if(File.Exists(statsFile))
+            if (File.Exists(statsFile))
             {
                 //try-catch as error handling.
                 try
                 {
                     //Open stream.
-                    using(StreamReader streamReader = new StreamReader(statsFile))
+                    using (StreamReader streamReader = new StreamReader(statsFile))
                     {
                         //Read list and turn it into a list of strings.
                         string json = streamReader.ReadToEnd();
                         statList = JsonSerializer.Deserialize<List<Statistics>>(json);
-                        
+
                         //Close streamreader.
                         streamReader.Close();
-                        
+
                         //If the list exists.
-                        if(statList != null)
+                        if (statList != null)
                         {
                             newStats = new Statistics(loopCounter, word, winner);
                             statList.Add(newStats);
@@ -324,16 +324,16 @@ namespace project
             try
             {
                 //Open stream.
-                using(StreamReader streamReader = new StreamReader(statsFile))
+                using (StreamReader streamReader = new StreamReader(statsFile))
                 {
                     //Read list and turn it into a list of strings.
                     string json = streamReader.ReadToEnd();
                     statList = JsonSerializer.Deserialize<List<Statistics>>(json);
-                            
+
                     //Close streamreader.
                     streamReader.Close();
 
-                    if(statList != null)
+                    if (statList != null)
                     {
                         statLength = statList.Count;
 
@@ -343,13 +343,13 @@ namespace project
 
                             foreach (var stat in statList)
                             {
-                                if(stat.Winner)
+                                if (stat.Winner)
                                 {
                                     Console.WriteLine(stat.Time + ": Ordet " + stat.Word + " tog " + stat.Turns + " gissningar.");
                                 }
                                 else
                                 {
-                                 Console.WriteLine(stat.Time + ": Ordet " + stat.Word + " lyckades spelaren inte gissa.");
+                                    Console.WriteLine(stat.Time + ": Ordet " + stat.Word + " lyckades spelaren inte gissa.");
                                 }
                             }
 
@@ -361,7 +361,7 @@ namespace project
                         //If statList doesn't exist, error is shown.
                         Console.WriteLine("Tyvärr, något gick fel med den sparade statistiken.");
                     }
-                } 
+                }
             }
             catch
             {

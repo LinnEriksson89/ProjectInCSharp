@@ -13,12 +13,12 @@ namespace project
         {
             //For some reason some consoles does not understand how char is supposed to work in C# and this is needed.
             Console.InputEncoding = Encoding.Unicode;
-            
+
             //Variable and object created.
             Game game = new Game();
             bool showMenu = true;
 
-            while(showMenu)
+            while (showMenu)
             {
                 showMenu = game.Menu();
             }
